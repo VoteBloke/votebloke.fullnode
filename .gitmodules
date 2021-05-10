@@ -1,0 +1,3 @@
+[submodule "scr/main/java/votebloke.blockchain"]
+	path = scr/main/java/votebloke.blockchain
+	url = https://github.com/VoteBloke/votebloke.blockchain.git
