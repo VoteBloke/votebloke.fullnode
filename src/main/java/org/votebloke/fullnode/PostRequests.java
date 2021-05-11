@@ -9,3 +9,14 @@ class ElectionsPostBody {
         this.answers = answers;
     }
 }
+
+class VotePostBody {
+    String answer;
+    String electionsTransactionId;
+
+    VotePostBody(String answer, String electionsTransactionId) {
+        this.answer = answer;
+        this.electionsTransactionId = electionsTransactionId;
+    }
+}
+

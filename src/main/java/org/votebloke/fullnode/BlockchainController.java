@@ -32,4 +32,10 @@ public class BlockchainController {
         chain.callElections(body.elections, body.answers);
         return "Elections called";
     }
+
+    @PostMapping("/vote")
+    public String callElections(@RequestBody VotePostBody body) {
+        chain.vote(body.answer, body.electionsTransactionId);
+        return "Vote cast";
+    }
 }
