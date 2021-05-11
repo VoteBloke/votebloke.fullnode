@@ -1,7 +1,12 @@
 package org.votebloke.fullnode;
 
 import blockchain.TransactionOutput;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 
@@ -18,7 +23,7 @@ public class BlockchainController {
 
     @GetMapping("/transactions/")
     @ResponseBody
-    public ArrayList<TransactionOutput> getAllTransactions() {
+    public ArrayList<TransactionGetBody> getAllTransactions() {
         return chain.getAllOutputTransactions();
     }
 

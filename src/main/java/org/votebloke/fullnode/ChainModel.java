@@ -2,6 +2,7 @@ package org.votebloke.fullnode;
 
 import blockchain.*;
 
+import java.lang.reflect.Array;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -53,7 +54,12 @@ class BlockchainModel {
     }
   }
 
-  public ArrayList<TransactionOutput> getAllOutputTransactions() {
-    return latestBlock.getUnconsumedOutputs();
+  public ArrayList<TransactionGetBody> getAllOutputTransactions() {
+    ArrayList<TransactionGetBody> transactionsResponses = new ArrayList<>();
+    for(TransactionOutput transactionOutput : latestBlock.getUnconsumedOutputs()) {
+      transactionsResponses.add(new TransactionGetBody(transactionOutput));
+    }
+
+    return transactionsResponses;
   }
 }
