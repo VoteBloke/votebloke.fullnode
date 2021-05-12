@@ -2,11 +2,11 @@ package org.votebloke.fullnode;
 
 import blockchain.*;
 
-import java.lang.reflect.Array;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class BlockchainModel {
   private Chain blockchain = null;
@@ -56,10 +56,43 @@ class BlockchainModel {
 
   public ArrayList<TransactionGetBody> getAllOutputTransactions() {
     ArrayList<TransactionGetBody> transactionsResponses = new ArrayList<>();
-    for(TransactionOutput transactionOutput : latestBlock.getUnconsumedOutputs()) {
+    for (TransactionOutput transactionOutput : latestBlock.getUnconsumedOutputs()) {
       transactionsResponses.add(new TransactionGetBody(transactionOutput));
     }
 
     return transactionsResponses;
+  }
+
+  public void tallyElections(String electionsTransactionId) {
+    if (account == null) return;
+
+    ArrayList<TransactionInput> tallyInputEntries = new ArrayList<>();
+    tallyInputEntries.add(
+        new TransactionInput(
+            latestBlock.getUnconsumedOutputs().stream()
+                .filter(output -> electionsTransactionId.equals(output.getParentTransactionId()))
+                .findAny()
+                .orElse(null)));
+    List<TransactionOutput> voteTransactions =
+        latestBlock.getUnconsumedOutputs().stream()
+            .filter(
+                output -> {
+                  try {
+                    String electionsId =
+                        tallyInputEntries.get(0).getTransactionOut().getData().getId();
+                    Vote vote = (Vote) output.getData();
+                    return electionsId.equals(vote.getElectionsId());
+                  } catch (Exception ignored) {
+                    return false;
+                  }
+                })
+            .collect(Collectors.toList());
+
+    for (TransactionOutput output : voteTransactions) {
+      tallyInputEntries.add(new TransactionInput(output));
+    }
+
+    Transaction tallyTransaction = account.tally(tallyInputEntries);
+    latestBlock.addTransaction(tallyTransaction);
   }
 }
