@@ -12,11 +12,9 @@ class ElectionsPostBody {
 
 class TallyPostBody {
   String electionsTransactionId;
-  String dummy;
 
   TallyPostBody(String electionsTransactionId, String dummy) {
     this.electionsTransactionId = electionsTransactionId;
-    this.dummy = dummy;
   }
 }
 

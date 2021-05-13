@@ -1,5 +1,6 @@
 package org.votebloke.fullnode;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +39,7 @@ public class BlockchainController {
     return "Vote cast";
   }
 
-  @PostMapping("/tally")
+  @PostMapping(value = "/tally", consumes = MediaType.APPLICATION_JSON_VALUE)
   public String tallyElections(@RequestBody TallyPostBody body) {
     chain.tallyElections(body.electionsTransactionId);
     return "Elections tallied";
