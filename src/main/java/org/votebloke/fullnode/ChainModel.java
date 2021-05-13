@@ -95,4 +95,13 @@ class BlockchainModel {
     Transaction tallyTransaction = account.tally(tallyInputEntries);
     latestBlock.addTransaction(tallyTransaction);
   }
+
+  public ArrayList<TransactionGetBody> getOpenElections() {
+    ArrayList<TransactionGetBody> transactionsResponses = new ArrayList<>();
+    for (TransactionOutput transactionOutput : latestBlock.getOpenElections()) {
+      transactionsResponses.add(new TransactionGetBody(transactionOutput));
+    }
+
+    return transactionsResponses;
+  }
 }

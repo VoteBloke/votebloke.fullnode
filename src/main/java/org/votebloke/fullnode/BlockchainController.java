@@ -27,6 +27,12 @@ public class BlockchainController {
     return chain.getAllOutputTransactions();
   }
 
+  @GetMapping("/transactions/elections")
+  @ResponseBody
+  public ArrayList<TransactionGetBody> getOpenElections() {
+    return chain.getOpenElections();
+  }
+
   @PostMapping("/elections")
   public String callElections(@RequestBody ElectionsPostBody body) {
     chain.callElections(body.elections, body.answers);
