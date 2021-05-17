@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
 
 @RestController
@@ -33,13 +34,13 @@ public class BlockchainController {
     return chain.getOpenElections();
   }
 
-  @PostMapping("/elections")
+  @PostMapping(value = "/elections", consumes = MediaType.APPLICATION_JSON_VALUE)
   public String callElections(@RequestBody ElectionsPostBody body) {
     chain.callElections(body.elections, body.answers);
     return "Elections called";
   }
 
-  @PostMapping("/vote")
+  @PostMapping(value = "/vote", consumes = MediaType.APPLICATION_JSON_VALUE)
   public String callElections(@RequestBody VotePostBody body) {
     chain.vote(body.answer, body.electionsTransactionId);
     return "Vote cast";

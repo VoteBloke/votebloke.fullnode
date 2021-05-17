@@ -1,7 +1,7 @@
 package org.votebloke.fullnode;
 
-import blockchain.Transaction;
-import blockchain.TransactionOutput;
+import org.votebloke.blockchain.Transaction;
+import org.votebloke.blockchain.TransactionOutput;
 
 import java.util.HashMap;
 
