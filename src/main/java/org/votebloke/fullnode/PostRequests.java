@@ -13,7 +13,7 @@ class ElectionsPostBody {
 class TallyPostBody {
   String electionsTransactionId;
 
-  TallyPostBody(String electionsTransactionId, String dummy) {
+  TallyPostBody(String electionsTransactionId) {
     this.electionsTransactionId = electionsTransactionId;
   }
 }

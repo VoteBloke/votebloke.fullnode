@@ -39,20 +39,20 @@ class BlockchainModel {
   }
 
   public void callElections(String question, String[] answers) {
-    if (account != null) {
-      latestBlock.addTransaction(account.createElections(question, answers));
+    if (getAccount() != null) {
+      latestBlock.addTransaction(getAccount().createElections(question, answers));
     }
   }
 
   public void vote(String answer, String electionsTransactionId) {
-    if (account != null) {
+    if (getAccount() != null) {
       TransactionOutput electionsOut =
           latestBlock.getUnconsumedOutputs().stream()
               .filter(output -> electionsTransactionId.equals(output.getParentTransactionId()))
               .findAny()
               .orElse(null);
       Transaction voteTransaction =
-          account.vote(
+          getAccount().vote(
               answer,
               (Elections) electionsOut.getData(),
               new ArrayList<>(List.of(new TransactionInput(electionsOut))));
@@ -70,7 +70,7 @@ class BlockchainModel {
   }
 
   public void tallyElections(String electionsTransactionId) {
-    if (account == null) return;
+    if (getAccount() == null) return;
 
     ArrayList<TransactionInput> tallyInputEntries = new ArrayList<>();
     tallyInputEntries.add(
@@ -98,7 +98,7 @@ class BlockchainModel {
       tallyInputEntries.add(new TransactionInput(output));
     }
 
-    Transaction tallyTransaction = account.tally(tallyInputEntries);
+    Transaction tallyTransaction = getAccount().tally(tallyInputEntries);
     latestBlock.addTransaction(tallyTransaction);
   }
 
@@ -109,5 +109,17 @@ class BlockchainModel {
     }
 
     return transactionsResponses;
+  }
+
+  public ArrayList<TransactionGetBody> getUnsignedTransactions(String keyId) {
+    ArrayList<TransactionGetBody> transactionsResponses = new ArrayList<>();
+    for (Transaction transaction : latestBlock.getUnsignedTransactions(keyId)) {
+      transactionsResponses.add(new TransactionGetBody(transaction));
+    }
+    return transactionsResponses;
+  }
+
+  public Account getAccount() {
+    return account;
   }
 }

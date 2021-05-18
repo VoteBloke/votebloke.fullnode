@@ -1,15 +1,12 @@
 package org.votebloke.fullnode;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.votebloke.blockchain.StringUtils;
 
 import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/blockchain")
@@ -19,7 +16,12 @@ public class BlockchainController {
   @GetMapping("/accounts/create")
   public String createAccount() {
     chain.createAccount();
-    return "Account created";
+    return StringUtils.keyToString(chain.getAccount().getPublicKey());
+  }
+
+  @GetMapping("/transactions/unsigned")
+  public ArrayList<TransactionGetBody> getUnsignedTransactions(@RequestParam Optional<String> keyId) {
+    return chain.getUnsignedTransactions(keyId.orElse(null));
   }
 
   @GetMapping("/transactions/")
