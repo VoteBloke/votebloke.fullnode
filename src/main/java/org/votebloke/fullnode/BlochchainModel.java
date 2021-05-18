@@ -1,5 +1,12 @@
 package org.votebloke.fullnode;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.votebloke.blockchain.Account;
 import org.votebloke.blockchain.Block;
 import org.votebloke.blockchain.Chain;
@@ -8,11 +15,6 @@ import org.votebloke.blockchain.Transaction;
 import org.votebloke.blockchain.TransactionInput;
 import org.votebloke.blockchain.TransactionOutput;
 import org.votebloke.blockchain.Vote;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 class BlockchainModel {
   private Chain blockchain = null;
@@ -30,21 +32,24 @@ class BlockchainModel {
     latestBlock = newBlock;
   }
 
-  public void createAccount() {
+  public void createAccount(String base64Key) {
     try {
-      account = Account.createAccount();
-    } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
+      this.account = new Account(base64Key);
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       e.printStackTrace();
     }
   }
 
-  public void callElections(String question, String[] answers) {
+  public Transaction callElections(String question, String[] answers) {
     if (getAccount() != null) {
-      latestBlock.addTransaction(getAccount().createElections(question, answers));
+      Transaction elections = getAccount().createElections(question, answers);
+      latestBlock.addTransaction(elections);
+      return elections;
     }
+    return null;
   }
 
-  public void vote(String answer, String electionsTransactionId) {
+  public Transaction vote(String answer, String electionsTransactionId) {
     if (getAccount() != null) {
       TransactionOutput electionsOut =
           latestBlock.getUnconsumedOutputs().stream()
@@ -52,12 +57,15 @@ class BlockchainModel {
               .findAny()
               .orElse(null);
       Transaction voteTransaction =
-          getAccount().vote(
-              answer,
-              (Elections) electionsOut.getData(),
-              new ArrayList<>(List.of(new TransactionInput(electionsOut))));
+          getAccount()
+              .vote(
+                  answer,
+                  (Elections) electionsOut.getData(),
+                  new ArrayList<>(List.of(new TransactionInput(electionsOut))));
       latestBlock.addTransaction(voteTransaction);
+      return voteTransaction;
     }
+    return null;
   }
 
   public ArrayList<TransactionGetBody> getAllOutputTransactions() {
@@ -69,8 +77,8 @@ class BlockchainModel {
     return transactionsResponses;
   }
 
-  public void tallyElections(String electionsTransactionId) {
-    if (getAccount() == null) return;
+  public Transaction tallyElections(String electionsTransactionId) {
+    if (getAccount() == null) return null;
 
     ArrayList<TransactionInput> tallyInputEntries = new ArrayList<>();
     tallyInputEntries.add(
@@ -100,6 +108,8 @@ class BlockchainModel {
 
     Transaction tallyTransaction = getAccount().tally(tallyInputEntries);
     latestBlock.addTransaction(tallyTransaction);
+
+    return tallyTransaction;
   }
 
   public ArrayList<TransactionGetBody> getOpenElections() {
@@ -121,5 +131,9 @@ class BlockchainModel {
 
   public Account getAccount() {
     return account;
+  }
+
+  public void signTransaction(String transactionId, String signature) {
+    latestBlock.signTransaction(transactionId, signature.getBytes(StandardCharsets.UTF_8));
   }
 }

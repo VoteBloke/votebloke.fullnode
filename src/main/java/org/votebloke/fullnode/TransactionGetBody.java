@@ -1,9 +1,8 @@
 package org.votebloke.fullnode;
 
+import java.util.HashMap;
 import org.votebloke.blockchain.Transaction;
 import org.votebloke.blockchain.TransactionOutput;
-
-import java.util.HashMap;
 
 public class TransactionGetBody implements java.io.Serializable {
   public String transactionId;
