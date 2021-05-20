@@ -1,41 +1,42 @@
 package org.votebloke.fullnode;
 
-class PostRequests {
-  static class ElectionsPostBody {
-    String elections;
-    String[] answers;
+import java.io.Serializable;
+import java.util.Arrays;
 
-    ElectionsPostBody(String elections, String[] answers) {
-      this.elections = elections;
-      this.answers = answers;
-    }
+class ElectionsPostBody implements Serializable {
+  public String elections;
+  public String[] answers;
+
+  ElectionsPostBody(String elections, String[] answers) {
+    this.elections = elections;
+    this.answers = answers;
   }
+}
 
-  static class TallyPostBody {
-    String electionsTransactionId;
+class TallyPostBody implements Serializable {
+  public String electionsTransactionId;
 
-    TallyPostBody(String electionsTransactionId) {
-      this.electionsTransactionId = electionsTransactionId;
-    }
+  TallyPostBody(String electionsTransactionId) {
+    this.electionsTransactionId = electionsTransactionId;
   }
+}
 
-  static class VotePostBody {
-    String answer;
-    String electionsTransactionId;
+class VotePostBody implements Serializable {
+  public String answer;
+  public String electionsTransactionId;
 
-    VotePostBody(String answer, String electionsTransactionId) {
-      this.answer = answer;
-      this.electionsTransactionId = electionsTransactionId;
-    }
+  VotePostBody(String answer, String electionsTransactionId) {
+    this.answer = answer;
+    this.electionsTransactionId = electionsTransactionId;
   }
+}
 
-  static class SignPostBody {
-    String transactionId;
-    String signature;
+class SignPostBody implements Serializable {
+  public String transactionId;
+  public String signature;
 
-    SignPostBody(String transactionId, String signature) {
-      this.transactionId = transactionId;
-      this.signature = signature;
-    }
+  SignPostBody(String transactionId, String signature) {
+    this.transactionId = transactionId;
+    this.signature = signature;
   }
 }

@@ -1,8 +1,7 @@
 package org.votebloke.fullnode;
 
-import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.votebloke.blockchain.StringUtils;
 import org.votebloke.blockchain.Transaction;
@@ -24,52 +22,56 @@ public class BlockchainController {
   private final BlockchainModel chain = new BlockchainModel();
 
   @GetMapping("/accounts/create")
-  public ResponseEntity<String> registerAccount(@RequestHeader("public-key") String base64Key) {
+  public ResponseEntity<?> registerAccount(@RequestHeader("public-key") String base64Key) {
     chain.createAccount(base64Key);
-    return new ResponseEntity<String>(
-        StringUtils.keyToString(chain.getAccount().getPublicKey()), HttpStatus.OK);
+    return new ResponseEntity<>(
+        Map.of("public-key", StringUtils.keyToString(chain.getAccount().getPublicKey())),
+        HttpStatus.OK);
+  }
+
+  @GetMapping("/transactions")
+  public ResponseEntity<?> getAllTransactions() {
+    return new ResponseEntity<>(chain.getAllOutputTransactions(), HttpStatus.OK);
   }
 
   @GetMapping("/transactions/unsigned")
-  public ArrayList<TransactionGetBody> getUnsignedTransactions(
-      @RequestParam Optional<String> keyId) {
-    return chain.getUnsignedTransactions(keyId.orElse(null));
-  }
-
-  @GetMapping("/transactions/")
-  @ResponseBody
-  public ArrayList<TransactionGetBody> getAllTransactions() {
-    return chain.getAllOutputTransactions();
+  public ResponseEntity<?> getUnsignedTransactions(@RequestParam Optional<String> keyId) {
+    return new ResponseEntity<>(chain.getUnsignedTransactions(keyId.orElse(null)), HttpStatus.OK);
   }
 
   @GetMapping("/transactions/elections")
-  @ResponseBody
-  public ArrayList<TransactionGetBody> getOpenElections() {
-    return chain.getOpenElections();
+  public ResponseEntity<?> getOpenElections() {
+    return new ResponseEntity<>(chain.getOpenElections(), HttpStatus.OK);
   }
 
   @PostMapping(value = "/transactions/sign", consumes = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseBody
-  public String signTransaction(@RequestBody PostRequests.SignPostBody body) {
+  public ResponseEntity<?> signTransaction(@RequestBody SignPostBody body) {
     chain.signTransaction(body.transactionId, body.signature);
-    return null;
+    return new ResponseEntity<>(null, HttpStatus.OK);
   }
 
   @PostMapping(value = "/elections", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String callElections(@RequestBody PostRequests.ElectionsPostBody body) {
+  public ResponseEntity<?> callElections(
+      @RequestHeader("public-key") String base64Key,
+      @RequestBody ElectionsPostBody body) {
+    chain.createAccount(base64Key);
     Transaction elections = chain.callElections(body.elections, body.answers);
-    return elections.getId();
+    return new ResponseEntity<>(Map.of("id", elections.getId()), HttpStatus.OK);
   }
 
   @PostMapping(value = "/vote", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String castVote(@RequestBody PostRequests.VotePostBody body) {
+  public ResponseEntity<?> castVote(
+      @RequestHeader("public-key") String base64Key, @RequestBody VotePostBody body) {
+    chain.createAccount(base64Key);
     Transaction vote = chain.vote(body.answer, body.electionsTransactionId);
-    return vote.getId();
+    return new ResponseEntity<>(Map.of("id", vote.getId()), HttpStatus.OK);
   }
 
   @PostMapping(value = "/tally", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String tallyElections(@RequestBody PostRequests.TallyPostBody body) {
+  public ResponseEntity<?> tallyElections(
+      @RequestHeader("public-key") String base64Key, @RequestBody TallyPostBody body) {
+    chain.createAccount(base64Key);
     Transaction tally = chain.tallyElections(body.electionsTransactionId);
-    return tally.getId();
+    return new ResponseEntity<>(Map.of("id", tally.getId()), HttpStatus.OK);
   }
 }

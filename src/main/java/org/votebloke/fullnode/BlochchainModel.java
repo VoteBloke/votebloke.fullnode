@@ -78,7 +78,9 @@ class BlockchainModel {
   }
 
   public Transaction tallyElections(String electionsTransactionId) {
-    if (getAccount() == null) return null;
+    if (getAccount() == null) {
+      return null;
+    }
 
     ArrayList<TransactionInput> tallyInputEntries = new ArrayList<>();
     tallyInputEntries.add(
