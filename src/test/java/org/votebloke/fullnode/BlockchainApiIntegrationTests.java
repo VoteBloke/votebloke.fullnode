@@ -1,6 +1,8 @@
 package org.votebloke.fullnode;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -15,11 +17,11 @@ import org.votebloke.blockchain.Account;
 import org.votebloke.blockchain.StringUtils;
 
 import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,13 +34,15 @@ class BlockchainApiIntegrationTests {
 
   @Autowired MockMvc mockMvc;
 
+  KeyPair keyPair;
   String testPublicKey;
 
   @Autowired ObjectMapper mapper;
 
   @BeforeEach
   void setUp() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
-    testPublicKey = StringUtils.keyToString(Account.generateKeys().getPublic());
+    keyPair = Account.generateKeys();
+    testPublicKey = StringUtils.keyToString(keyPair.getPublic());
   }
 
   @Test
@@ -58,7 +62,6 @@ class BlockchainApiIntegrationTests {
         .andExpect(status().isOk())
         .andExpect(content().string("[]"));
   }
-
 
   @Test
   @Order(2)
@@ -86,6 +89,7 @@ class BlockchainApiIntegrationTests {
   }
 
   @Test
+  @Order(4)
   void unsignedElectionsAfterPostingElections() throws Exception {
     this.mockMvc
         .perform(
@@ -95,13 +99,53 @@ class BlockchainApiIntegrationTests {
         .andExpect(jsonPath("$[0].timeStamp").hasJsonPath())
         .andExpect(jsonPath("$[0].entryType").hasJsonPath())
         .andExpect(jsonPath("$[0].transactionAuthor").hasJsonPath())
-        .andExpect(jsonPath("$[0].entryMetadata").hasJsonPath());
+        .andExpect(jsonPath("$[0].entryMetadata").hasJsonPath())
+        .andExpect(jsonPath("$[0].dataToSign").hasJsonPath());
   }
 
   @Test
+  @Order(5)
   void signedTransactionsEmptyAfterPostingElections() throws Exception {
     this.mockMvc
         .perform(get("/v1/blockchain/transactions").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().string("[]"));
+  }
+
+  @Test
+  @Order(6)
+  void signingElectionsReturnsStatusOk() throws Exception {
+    String response =
+        this.mockMvc
+            .perform(
+                get("/v1/blockchain/transactions/unsigned")
+                    .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    String dataToEncrypt = JsonPath.parse(response).read("$[0].dataToSign", String.class);
+    String transactionId = JsonPath.parse(response).read("$[0].transactionId", String.class);
+    String encryptedData =
+        new String(
+            Base64.encodeBase64(StringUtils.signWithEcdsa(keyPair.getPrivate(), dataToEncrypt)));
+
+    String payload = mapper.writeValueAsString(new SignPostBody(transactionId, encryptedData));
+    this.mockMvc
+        .perform(
+            post("/v1/blockchain/transactions/sign")
+                .header("public-key", testPublicKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @Order(7)
+  void unsignedTransactionsEmptyAfterSigningAllTransactions() throws Exception {
+    this.mockMvc
+        .perform(
+            get("/v1/blockchain/transactions/unsigned").accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(status().isOk())
         .andExpect(content().string("[]"));
   }
