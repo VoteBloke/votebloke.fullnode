@@ -1,7 +1,6 @@
 package org.votebloke.fullnode;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 class ElectionsPostBody implements Serializable {
   public String elections;

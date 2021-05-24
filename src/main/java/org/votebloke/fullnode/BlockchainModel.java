@@ -1,7 +1,5 @@
 package org.votebloke.fullnode;
 
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -135,7 +133,12 @@ class BlockchainModel {
     return account;
   }
 
+  /** Signs a transaction.
+   *
+   * @param transactionId the id of the transaction to sign
+   * @param signature the base64 encoded signature
+   */
   public void signTransaction(String transactionId, String signature) {
-    latestBlock.signTransaction(transactionId, signature.getBytes(StandardCharsets.UTF_8));
+    latestBlock.signTransaction(transactionId, signature);
   }
 }

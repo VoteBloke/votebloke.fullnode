@@ -45,15 +45,16 @@ public class BlockchainController {
   }
 
   @PostMapping(value = "/transactions/sign", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<?> signTransaction(@RequestBody SignPostBody body) {
+  public ResponseEntity<?> signTransaction(
+      @RequestHeader("public-key") String base64Key, @RequestBody SignPostBody body) {
+    chain.createAccount(base64Key);
     chain.signTransaction(body.transactionId, body.signature);
     return new ResponseEntity<>(null, HttpStatus.OK);
   }
 
   @PostMapping(value = "/elections", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> callElections(
-      @RequestHeader("public-key") String base64Key,
-      @RequestBody ElectionsPostBody body) {
+      @RequestHeader("public-key") String base64Key, @RequestBody ElectionsPostBody body) {
     chain.createAccount(base64Key);
     Transaction elections = chain.callElections(body.elections, body.answers);
     return new ResponseEntity<>(Map.of("id", elections.getId()), HttpStatus.OK);
