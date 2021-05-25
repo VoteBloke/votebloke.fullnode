@@ -57,7 +57,7 @@ public class BlockchainController {
       @RequestHeader("public-key") String base64Key, @RequestBody ElectionsPostBody body) {
     chain.createAccount(base64Key);
     Transaction elections = chain.callElections(body.elections, body.answers);
-    return new ResponseEntity<>(Map.of("id", elections.getId()), HttpStatus.OK);
+    return new ResponseEntity<>(new TransactionGetBody(elections), HttpStatus.OK);
   }
 
   @PostMapping(value = "/vote", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -65,7 +65,7 @@ public class BlockchainController {
       @RequestHeader("public-key") String base64Key, @RequestBody VotePostBody body) {
     chain.createAccount(base64Key);
     Transaction vote = chain.vote(body.answer, body.electionsTransactionId);
-    return new ResponseEntity<>(Map.of("id", vote.getId()), HttpStatus.OK);
+    return new ResponseEntity<>(new TransactionGetBody(vote), HttpStatus.OK);
   }
 
   @PostMapping(value = "/tally", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -73,6 +73,6 @@ public class BlockchainController {
       @RequestHeader("public-key") String base64Key, @RequestBody TallyPostBody body) {
     chain.createAccount(base64Key);
     Transaction tally = chain.tallyElections(body.electionsTransactionId);
-    return new ResponseEntity<>(Map.of("id", tally.getId()), HttpStatus.OK);
+    return new ResponseEntity<>(new TransactionGetBody(tally), HttpStatus.OK);
   }
 }
