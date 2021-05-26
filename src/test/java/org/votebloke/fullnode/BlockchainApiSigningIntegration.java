@@ -5,7 +5,11 @@ import com.jayway.jsonpath.JsonPath;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
+import net.minidev.json.JSONArray;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -71,8 +75,27 @@ class BlockchainApiSigningIntegration {
     String encryptedData =
         new String(
             Base64.encodeBase64(StringUtils.signWithEcdsa(keyPair.getPrivate(), dataToEncrypt)));
-
     payload = mapper.writeValueAsString(new SignPostBody(transactionId, encryptedData));
+
+    String rawJson =
+        this.mockMvc
+            .perform(get("/v1/blockchain/transactions").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    JSONArray parsedJson = JsonPath.read(rawJson, "$");
+    int signedTransactionsLength = parsedJson.size();
+
+    rawJson =
+        this.mockMvc
+            .perform(get("/v1/blockchain/transactions/unsigned").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    parsedJson = JsonPath.read(rawJson, "$");
+    int unsignedTransactionsLength = parsedJson.size();
     this.mockMvc
         .perform(
             post("/v1/blockchain/transactions/sign")
@@ -82,14 +105,13 @@ class BlockchainApiSigningIntegration {
         .andExpect(status().isOk());
 
     this.mockMvc
-        .perform(
-            get("/v1/blockchain/transactions/unsigned").accept(MediaType.APPLICATION_JSON_VALUE))
-        .andExpect(status().isOk())
-        .andExpect(content().string("[]"));
-
-    this.mockMvc
         .perform(get("/v1/blockchain/transactions").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(1));
+        .andExpect(jsonPath("$.length()").value(signedTransactionsLength + 1));
+
+    this.mockMvc
+        .perform(get("/v1/blockchain/transactions/unsigned").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(unsignedTransactionsLength - 1));
   }
 }

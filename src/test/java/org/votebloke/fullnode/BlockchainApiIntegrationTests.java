@@ -53,24 +53,6 @@ class BlockchainApiIntegrationTests {
   }
 
   @Test
-  @Order(1)
-  void getUnsignedTransactionsEmptyOnEmptyChain() throws Exception {
-    this.mockMvc
-        .perform(get("/v1/blockchain/transactions/unsigned"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("[]"));
-  }
-
-  @Test
-  @Order(2)
-  void getTransactionsEmptyOnEmptyChain() throws Exception {
-    this.mockMvc
-        .perform(get("/v1/blockchain/transactions"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("[]"));
-  }
-
-  @Test
   @Order(3)
   void createElectionsOkOnEmptyChain() throws Exception {
     String payload =
@@ -99,14 +81,5 @@ class BlockchainApiIntegrationTests {
         .andExpect(jsonPath("$[0].transactionAuthor").hasJsonPath())
         .andExpect(jsonPath("$[0].entryMetadata").hasJsonPath())
         .andExpect(jsonPath("$[0].dataToSign").hasJsonPath());
-  }
-
-  @Test
-  @Order(5)
-  void signedTransactionsEmptyAfterPostingElections() throws Exception {
-    this.mockMvc
-        .perform(get("/v1/blockchain/transactions").accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().string("[]"));
   }
 }
