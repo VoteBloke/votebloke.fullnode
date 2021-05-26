@@ -1,6 +1,9 @@
 package org.votebloke.fullnode;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -13,10 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.votebloke.blockchain.Account;
 import org.votebloke.blockchain.StringUtils;
-
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

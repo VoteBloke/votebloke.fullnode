@@ -5,11 +5,8 @@ import com.jayway.jsonpath.JsonPath;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
 import net.minidev.json.JSONArray;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -24,7 +21,6 @@ import org.votebloke.blockchain.StringUtils;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
