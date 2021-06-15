@@ -1,8 +1,13 @@
 package org.votebloke.fullnode;
 
-class ElectionsPostBody {
-  String elections;
-  String[] answers;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
+
+class ElectionsPostBody implements Serializable {
+  public String elections;
+  public String[] answers;
 
   ElectionsPostBody(String elections, String[] answers) {
     this.elections = elections;
@@ -10,20 +15,31 @@ class ElectionsPostBody {
   }
 }
 
-class TallyPostBody {
-  String electionsTransactionId;
+class TallyPostBody implements Serializable {
+  public String electionsTransactionId;
 
-  TallyPostBody(String electionsTransactionId, String dummy) {
+  @JsonCreator
+  TallyPostBody(@JsonProperty("electionsTransactionId") String electionsTransactionId) {
     this.electionsTransactionId = electionsTransactionId;
   }
 }
 
-class VotePostBody {
-  String answer;
-  String electionsTransactionId;
+class VotePostBody implements Serializable {
+  public String answer;
+  public String electionsTransactionId;
 
   VotePostBody(String answer, String electionsTransactionId) {
     this.answer = answer;
     this.electionsTransactionId = electionsTransactionId;
+  }
+}
+
+class SignPostBody implements Serializable {
+  public String transactionId;
+  public String signature;
+
+  SignPostBody(String transactionId, String signature) {
+    this.transactionId = transactionId;
+    this.signature = signature;
   }
 }

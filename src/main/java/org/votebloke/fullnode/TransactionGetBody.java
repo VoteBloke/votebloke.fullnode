@@ -1,9 +1,8 @@
 package org.votebloke.fullnode;
 
+import java.util.HashMap;
 import org.votebloke.blockchain.Transaction;
 import org.votebloke.blockchain.TransactionOutput;
-
-import java.util.HashMap;
 
 public class TransactionGetBody implements java.io.Serializable {
   public String transactionId;
@@ -11,6 +10,7 @@ public class TransactionGetBody implements java.io.Serializable {
   public String entryType;
   public String transactionAuthor;
   public HashMap<String, String[]> entryMetadata;
+  public String dataToSign;
 
   TransactionGetBody(Transaction transaction) {
     this.transactionId = transaction.getId();
@@ -18,6 +18,7 @@ public class TransactionGetBody implements java.io.Serializable {
     this.entryType = transaction.getEntryType();
     this.transactionAuthor = transaction.getSigner();
     this.entryMetadata = transaction.data.getMetadata();
+    this.dataToSign = transaction.getSignData();
   }
 
   TransactionGetBody(TransactionOutput transactionOutput) {
@@ -26,6 +27,7 @@ public class TransactionGetBody implements java.io.Serializable {
     this.entryType = transactionOutput.getData().getEntryType();
     this.transactionAuthor = transactionOutput.getData().getAuthor();
     this.entryMetadata = transactionOutput.getData().getMetadata();
+    this.dataToSign = null;
   }
 
   TransactionGetBody(
@@ -33,11 +35,13 @@ public class TransactionGetBody implements java.io.Serializable {
       String timeStamp,
       String entryType,
       String transactionAuthor,
-      HashMap<String, String[]> metadata) {
+      HashMap<String, String[]> metadata,
+      String dataToSign) {
     this.transactionId = transactionId;
     this.timeStamp = timeStamp;
     this.entryType = entryType;
     this.transactionAuthor = transactionAuthor;
     this.entryMetadata = metadata;
+    this.dataToSign = dataToSign;
   }
 }
