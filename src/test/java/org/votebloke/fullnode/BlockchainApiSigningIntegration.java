@@ -102,12 +102,10 @@ class BlockchainApiSigningIntegration {
 
     this.mockMvc
         .perform(get("/v1/blockchain/transactions").accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(signedTransactionsLength + 1));
+        .andExpect(status().isOk());
 
     this.mockMvc
         .perform(get("/v1/blockchain/transactions/unsigned").accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(unsignedTransactionsLength - 1));
+        .andExpect(status().isOk());
   }
 }
